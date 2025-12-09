@@ -1,9 +1,9 @@
 name: Cache External Dependency Example (with enhanced toolkit)
 
 on:
-  push:
-    branches: [main]
-  pull_request:
+  # push:
+  #   branches: [main]
+  # pull_request:
 
 jobs:
   cache-external-dependency:

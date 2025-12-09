@@ -1,0 +1,33 @@
+name: Cache External Dependency Example
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  cache-external-dependency:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main repo
+        uses: actions/checkout@v4
+
+      - name: Checkout dependency repo
+        uses: actions/checkout@v4
+        with:
+          repository: lmvysakh/sibling_repo
+          path: ../sibling_repo
+
+      - name: Cache based on dependency.lock (outside workspace)
+        uses: mahabaleshwars/toolkit@enhancement/1035
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-build-${{ hashFiles('dependency.lock', { workingDirectory: '../sibling_repo' }) }}
+
+      # Optional: Install dependencies and run tests/build as needed
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Run tests
+        run: yarn test
