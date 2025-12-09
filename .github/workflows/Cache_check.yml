@@ -1,0 +1,38 @@
+# name: Cache External Dependency Example
+
+# on:
+#   # push:
+#   #   branches: [main]
+#   # pull_request:
+#   workflow_dispatch:
+# jobs:
+#   cache-external-dependency:
+#     runs-on: ubuntu-latest
+#     steps:
+#       # Step 1: Checkout your main repository (this is automatic in Actions workflows)
+#       - name: Checkout main repo
+#         uses: actions/checkout@v4
+
+#       # Step 2: Checkout the external/dependency repo in a sibling directory
+#       - name: Checkout dependency repo
+#         uses: actions/checkout@v4
+#         with:
+#           repository: lmvysakh/sibling_repo   # Change to your dependency repo as needed
+#           path: ../sibling_repo
+
+#       # Step 3: Use the enhanced caching (hashing file outside workspace by specifying workingDirectory)
+#       - name: Cache node_modules using dependency.lock from external repo
+#         uses: actions/cache@v3
+#         with:
+#           path: node_modules
+#           key: |
+#             ${{ runner.os }}-node-modules-${{ hashFiles('sibling.lock', {
+#                 'workingDirectory': '../sibling_repo'
+#             }) }}
+
+#       # Step 4: Example step showing how to read that dependency.lock file directly
+#       - name: Show dependency.lock hash (for debug)
+#         run: |
+#           echo "The hash for dependency.lock from dependency repo (outside workspace):"
+#           HASH=$(sha256sum ../sibling_repo/sibling.lock | cut -d' ' -f1)
+#           echo "$HASH"
