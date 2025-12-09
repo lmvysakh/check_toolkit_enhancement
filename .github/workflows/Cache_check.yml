@@ -1,38 +1,51 @@
-# name: Cache External Dependency Example
+name: Cache External Dependency Example (with sibling_repo)
 
-# on:
-#   # push:
-#   #   branches: [main]
-#   # pull_request:
-#   workflow_dispatch:
-# jobs:
-#   cache-external-dependency:
-#     runs-on: ubuntu-latest
-#     steps:
-#       # Step 1: Checkout your main repository (this is automatic in Actions workflows)
-#       - name: Checkout main repo
-#         uses: actions/checkout@v4
+on:
+  # push:
+  #   branches: [main]
+  # pull_request:
+  workflow_dispatch:
 
-#       # Step 2: Checkout the external/dependency repo in a sibling directory
-#       - name: Checkout dependency repo
-#         uses: actions/checkout@v4
-#         with:
-#           repository: lmvysakh/sibling_repo   # Change to your dependency repo as needed
-#           path: ../sibling_repo
+jobs:
+  cache-external-dependency:
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Checkout your repo (lmvysakh/check_toolkit_enhancement)
+      - name: Checkout main repo
+        uses: actions/checkout@v4
 
-#       # Step 3: Use the enhanced caching (hashing file outside workspace by specifying workingDirectory)
-#       - name: Cache node_modules using dependency.lock from external repo
-#         uses: actions/cache@v3
-#         with:
-#           path: node_modules
-#           key: |
-#             ${{ runner.os }}-node-modules-${{ hashFiles('sibling.lock', {
-#                 'workingDirectory': '../sibling_repo'
-#             }) }}
+      # Step 2: Checkout toolkit's PR branch with hashFiles enhancement
+      - name: Checkout toolkit branch with hashFiles enhancement
+        uses: actions/checkout@v4
+        with:
+          repository: mahabaleshwars/toolkit
+          ref: enhancement/1035
+          path: toolkit
 
-#       # Step 4: Example step showing how to read that dependency.lock file directly
-#       - name: Show dependency.lock hash (for debug)
-#         run: |
-#           echo "The hash for dependency.lock from dependency repo (outside workspace):"
-#           HASH=$(sha256sum ../sibling_repo/sibling.lock | cut -d' ' -f1)
-#           echo "$HASH"
+      # Step 3: Install toolkit dependencies (if needed)
+      - name: Install toolkit dependencies
+        run: |
+          cd toolkit
+          npm install
+          # npm run build    # Uncomment if build step is necessary
+
+      # Step 4: Run hashFiles from toolkit for a file in sibling_repo/
+      # Adjust the file name if you want to target something else!
+      - name: Run hashFiles from toolkit
+        id: hashfiles
+        run: |
+          HASH=$(node ./toolkit/scripts/hashFiles.js 'dependency.lock' 'sibling_repo')
+          echo "hash=${HASH}" >> $GITHUB_OUTPUT
+
+      # Step 5: Cache node_modules (or other cache path) using custom hash
+      - name: Cache node_modules with custom external dependency hash
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ steps.hashfiles.outputs.hash }}
+
+      # Step 6: Debug - print the sibling_repo/dependency.lock file hash using sha256sum
+      - name: Show sibling_repo/dependency.lock hash (debug)
+        run: |
+          echo "Hash of sibling_repo/dependency.lock (using sha256sum):"
+          sha256sum sibling_repo/dependency.lock || echo "File not found"
