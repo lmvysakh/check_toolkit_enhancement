@@ -20,7 +20,7 @@ jobs:
           path: ../sibling_repo
 
       - name: Cache based on dependency.lock (outside workspace)
-        uses: actions/cache@v3
+        uses: mahabaleshwars/toolkit@enhancement/1035
         with:
           path: node_modules
           key: ${{ runner.os }}-build-${{ hashFiles('dependency.lock', { workingDirectory: '../sibling_repo' }) }}
