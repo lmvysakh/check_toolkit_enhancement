@@ -23,7 +23,7 @@ jobs:
         uses: mahabaleshwars/toolkit@enhancement/1035
         with:
           path: node_modules
-          key: ${{ runner.os }}-build-${{ hashFiles('dependency.lock', { workingDirectory: '../sibling_repo' }) }}
+          key: ${{ runner.os }}-build-${{ hashFiles('../sibling_repo/dependency.lock') }}
 
       # Optional: Install dependencies and run tests/build as needed
       - name: Install dependencies
