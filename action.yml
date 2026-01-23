@@ -1,0 +1,19 @@
+name: Cache External File
+description: Cache based on a file outside GITHUB_WORKSPACE (composite)
+
+inputs:
+  cache-path:
+    description: Path to cache (relative to workspace)
+    required: true
+  external-file:
+    description: Path to lockfile or file to hash for cache key (relative or absolute)
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Cache dependencies (external lockfile)
+      uses: mahabaleshwars/toolkit@enhancement/1035
+      with:
+        path: ${{ inputs.cache-path }}
+        key: ${{ runner.os }}-pycache-${{ hashFiles(inputs.external-file) }}
