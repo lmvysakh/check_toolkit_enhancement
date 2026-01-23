@@ -1,0 +1,43 @@
+name: Python app with cached external dependency (using composite action)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout main repo
+        uses: actions/checkout@v4
+
+      - name: Checkout external dependency repo
+        uses: actions/checkout@v4
+        with:
+          repository: lmvysakh/sibling_repo
+          path: ../sibling_repo  # This will place the repo at ../sibling_repo, outside your main workspace
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Cache using composite action
+        uses: ./.github/actions/cache-external-file
+        with:
+          cache-path: .venv
+          external-file: ../sibling_repo/dependency.lock # This file must exist in the sibling repo
+
+      - name: Install dependencies (if not cached)
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          pip install -r requirements.txt
+
+      - name: Run tests
+        run: |
+          source .venv/bin/activate
+          pytest
