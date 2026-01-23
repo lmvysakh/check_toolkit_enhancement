@@ -18,7 +18,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: lmvysakh/sibling_repo
-          path: ../sibling_repo  # This will place the repo at ../sibling_repo, outside your main workspace
+          path: sibling_repo  # This will place the repo at ../sibling_repo, outside your main workspace
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -29,7 +29,7 @@ jobs:
         uses: ./.github/actions/cache-external-file
         with:
           cache-path: .venv
-          external-file: ../sibling_repo/dependency.lock # This file must exist in the sibling repo
+          external-file: sibling_repo/dependency.lock # This file must exist in the sibling repo
 
       - name: Install dependencies (if not cached)
         run: |
